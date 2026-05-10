@@ -1,6 +1,6 @@
 <?php
 
-namespace Orbistra\SDK;
+namespace Navio\SDK;
 
 /**
  * Declares a permission that this module requires.

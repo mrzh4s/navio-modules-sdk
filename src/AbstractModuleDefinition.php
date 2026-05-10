@@ -1,11 +1,11 @@
 <?php
 
-namespace Orbistra\SDK;
+namespace Navio\SDK;
 
 /**
  * Default implementations for ModuleDefinitionContract.
  * External vendors extend this class and override only what they need.
- * Internal Orbistra modules extend app/Core/Modules/ModuleDefinition.php which
+ * Internal Navio modules extend app/Core/Modules/ModuleDefinition.php which
  * also extends this class to stay in sync.
  */
 abstract class AbstractModuleDefinition implements ModuleDefinitionContract

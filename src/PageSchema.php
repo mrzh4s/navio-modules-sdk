@@ -1,6 +1,6 @@
 <?php
 
-namespace Orbistra\SDK;
+namespace Navio\SDK;
 
 /**
  * Defines the JSON-driven UI schema for a module page.

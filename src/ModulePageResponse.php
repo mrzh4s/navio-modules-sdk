@@ -1,6 +1,6 @@
 <?php
 
-namespace Orbistra\SDK;
+namespace Navio\SDK;
 
 use Inertia\Inertia;
 use Inertia\Response;

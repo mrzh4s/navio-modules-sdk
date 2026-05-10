@@ -1,11 +1,11 @@
 <?php
 
-namespace Orbistra\SDK;
+namespace Navio\SDK;
 
 use Illuminate\Support\ServiceProvider;
 
 /**
- * Base ServiceProvider for external Orbistra modules.
+ * Base ServiceProvider for external Navio modules.
  *
  * Vendors extend this and implement moduleClass(). Everything else is optional.
  *
