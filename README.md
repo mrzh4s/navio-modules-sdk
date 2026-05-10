@@ -53,7 +53,7 @@ class CrmModule extends AbstractModuleDefinition
     // Author & marketplace metadata
     public function author(): string { return 'Acme Corp'; }
     public function authorUrl(): string { return 'https://acme.example'; }
-    public function homepage(): string { return 'https://acme.example/orbistra-crm'; }
+    public function homepage(): string { return 'https://acme.example/navio-crm'; }
     public function composerPackage(): string { return 'acme/crm-module'; }
 
     // Settings page
@@ -143,7 +143,7 @@ In your `composer.json`, declare the service provider for Laravel's package auto
     "name": "acme/crm-module",
     "type": "library",
     "require": {
-        "orbistra/sdk": "^1.0.0"
+        "navio/sdk": "^1.2.0"
     },
     "autoload": {
         "psr-4": {
