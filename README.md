@@ -1,22 +1,22 @@
-# Orbistra Module SDK
+# Navio Module SDK
 
-The official SDK for building external modules for the [Orbistra](https://orbistra.io) platform. This package provides the contracts and base classes that modules must implement to integrate with the platform's module registry, menu system, permissions, and UI renderer.
+The official SDK for building external modules for the [Navio](https://navio.com) platform. This package provides the contracts and base classes that modules must implement to integrate with the platform's module registry, menu system, permissions, and UI renderer.
 
 ## Requirements
 
 - PHP 8.4+
 - Laravel 13+
-- Orbistra platform 1.0.0+
+- Navio platform 1.4.0+
 
 ## Installation
 
 ```bash
-composer require orbistra/sdk
+composer require navio/sdk
 ```
 
 ## Overview
 
-An Orbistra module is a self-contained feature package that integrates into the platform. Modules can:
+An Navio module is a self-contained feature package that integrates into the platform. Modules can:
 
 - Register admin and app sidebar menus
 - Declare permissions synced into the platform's permission system
@@ -38,8 +38,8 @@ Create a class extending `AbstractModuleDefinition`. Only `slug()` and `name()` 
 
 namespace Acme\CrmModule;
 
-use Orbistra\SDK\AbstractModuleDefinition;
-use Orbistra\SDK\PermissionDefinition;
+use Navio\SDK\AbstractModuleDefinition;
+use Navio\SDK\PermissionDefinition;
 
 class CrmModule extends AbstractModuleDefinition
 {
@@ -105,7 +105,7 @@ Create a class extending `ModuleServiceProvider`. Only `moduleClass()` is requir
 
 namespace Acme\CrmModule;
 
-use Orbistra\SDK\ModuleServiceProvider;
+use Navio\SDK\ModuleServiceProvider;
 
 class CrmServiceProvider extends ModuleServiceProvider
 {
@@ -177,7 +177,7 @@ External modules can return JSON-schema driven pages rather than shipping React 
 Use `PageSchema` factory methods to describe your page layout:
 
 ```php
-use Orbistra\SDK\PageSchema;
+use Navio\SDK\PageSchema;
 
 // Index / list page
 $schema = PageSchema::index(
@@ -225,8 +225,8 @@ $schema = PageSchema::edit('Edit Contact', $fields, $actions);
 Use `ModulePageResponse::render()` in your controller to return the page as an Inertia response:
 
 ```php
-use Orbistra\SDK\ModulePageResponse;
-use Orbistra\SDK\PageSchema;
+use Navio\SDK\ModulePageResponse;
+use Navio\SDK\PageSchema;
 
 class ContactIndexEndpoint
 {
@@ -344,15 +344,15 @@ Each item in `adminMenuItems()` / `appMenuItems()` follows this structure:
 
 ## Namespace
 
-All SDK classes live under `Orbistra\SDK`:
+All SDK classes live under `Navio\SDK`:
 
 ```
-Orbistra\SDK\ModuleDefinitionContract
-Orbistra\SDK\AbstractModuleDefinition
-Orbistra\SDK\ModuleServiceProvider
-Orbistra\SDK\PermissionDefinition
-Orbistra\SDK\PageSchema
-Orbistra\SDK\ModulePageResponse
+Navio\SDK\ModuleDefinitionContract
+Navio\SDK\AbstractModuleDefinition
+Navio\SDK\ModuleServiceProvider
+Navio\SDK\PermissionDefinition
+Navio\SDK\PageSchema
+Navio\SDK\ModulePageResponse
 ```
 
 ---
