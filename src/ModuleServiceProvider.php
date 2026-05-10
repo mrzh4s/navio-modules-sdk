@@ -35,9 +35,23 @@ abstract class ModuleServiceProvider extends ServiceProvider
     abstract protected function moduleClass(): string;
 
     /**
-     * Absolute paths to route files to load.
+     * Absolute paths to route files to load (web + API mixed, existing pattern).
      */
     protected function routeFiles(): array { return []; }
+
+    /**
+     * Absolute paths to dedicated REST API route files.
+     * Semantically separate from routeFiles() — these should only contain
+     * API routes grouped under ['api', 'auth:api'] middleware.
+     */
+    protected function apiRouteFiles(): array { return []; }
+
+    /**
+     * Absolute paths to GraphQL SDL schema files (.graphql).
+     * Registered with the platform's GraphQLSchemaRegistry at boot time.
+     * Use `extend type Query` / `extend type Mutation` in these files.
+     */
+    protected function graphqlSchemaFiles(): array { return []; }
 
     /**
      * Absolute paths to migration directories to load.
@@ -83,6 +97,19 @@ abstract class ModuleServiceProvider extends ServiceProvider
             foreach ($this->routeFiles() as $file) {
                 require $file;
             }
+            foreach ($this->apiRouteFiles() as $file) {
+                require $file;
+            }
         });
+
+        // Register GraphQL schema files with the platform registry (if present)
+        $this->callAfterResolving(
+            \App\Core\GraphQL\GraphQLSchemaRegistry::class,
+            function ($registry) {
+                foreach ($this->graphqlSchemaFiles() as $file) {
+                    $registry->registerSchemaFile($file);
+                }
+            }
+        );
     }
 }
