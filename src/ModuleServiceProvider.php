@@ -59,6 +59,12 @@ abstract class ModuleServiceProvider extends ServiceProvider
     protected function migrationPaths(): array { return []; }
 
     /**
+     * FQN of this module's seeder class, or null if no seeding is needed.
+     * The host platform's DatabaseSeeder will call this during db:seed.
+     */
+    protected function seeder(): ?string { return null; }
+
+    /**
      * Interface → implementation bindings (Ports & Adapters).
      * Bound in register() so they are available before boot().
      *
@@ -78,6 +84,13 @@ abstract class ModuleServiceProvider extends ServiceProvider
         // Load migrations via standard Laravel package API
         foreach ($this->migrationPaths() as $path) {
             $this->loadMigrationsFrom($path);
+        }
+
+        // Register module seeder so the host DatabaseSeeder can discover it
+        if ($seederClass = $this->seeder()) {
+            $moduleClass = $this->moduleClass();
+            $this->app->bind("module.seeder.{$moduleClass}", fn () => new $seederClass());
+            $this->app->tag("module.seeder.{$moduleClass}", ['module.seeders']);
         }
 
         // Register module with ModuleRegistry.

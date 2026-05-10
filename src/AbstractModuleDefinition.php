@@ -138,7 +138,25 @@ abstract class AbstractModuleDefinition implements ModuleDefinitionContract
     public function publicRouteFiles(): array { return []; }
     public function portBindings(): array     { return []; }
     public function singletons(): array       { return []; }
-    public function migrationPaths(): array   { return []; }
     public function eventListeners(): array   { return []; }
-    public function seeder(): ?string         { return null; }
+
+    /**
+     * Auto-detects Database/Migrations/ adjacent to the module class file.
+     * Override to specify custom paths or return [] to disable.
+     */
+    public function migrationPaths(): array
+    {
+        $dir = dirname((new \ReflectionClass(static::class))->getFileName())
+            . '/Database/Migrations';
+
+        return is_dir($dir) ? [$dir] : [];
+    }
+
+    /**
+     * FQN of this module's seeder class, or null if no seeding is needed.
+     * Convention: Database/Seeders/{ModuleName}Seeder.php adjacent to the module file.
+     * Each module declares its seeder explicitly — auto-discovery is intentionally
+     * skipped here because class-loading order is not guaranteed.
+     */
+    public function seeder(): ?string { return null; }
 }

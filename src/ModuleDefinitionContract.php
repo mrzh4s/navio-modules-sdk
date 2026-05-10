@@ -229,6 +229,8 @@ interface ModuleDefinitionContract
 
     /**
      * Absolute paths to migration directories owned by this module.
+     * Default auto-detects Database/Migrations/ adjacent to the module class file.
+     * Override to specify custom paths or return [] to disable auto-detection.
      * Loaded via loadMigrationsFrom() in AppServiceProvider::boot().
      * @return string[]
      */
@@ -243,7 +245,8 @@ interface ModuleDefinitionContract
 
     /**
      * FQN of this module's seeder class, or null if no seeding is needed.
-     * Called by DatabaseSeeder and the modules:seed artisan command.
+     * Called by DatabaseSeeder during `php artisan db:seed`.
+     * Convention: Database/Seeders/{ModuleName}Seeder.php adjacent to the module class file.
      */
     public function seeder(): ?string;
 }
