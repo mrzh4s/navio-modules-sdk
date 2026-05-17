@@ -90,6 +90,16 @@ abstract class AbstractModuleDefinition implements ModuleDefinitionContract
     public function onDisabled(): void {}
     public function onUpgrade(string $fromVersion, string $toVersion): void {}
 
+    // ── Localisation ──────────────────────────────────────────────────────────
+
+    /**
+     * BCP-47 codes this module's UI is translated for.
+     * Internal Navio modules return SupportedLanguages::primaryCodes().
+     * External modules return the subset of languages they've been translated into.
+     * Return [] to indicate no module-specific translation declarations.
+     */
+    public function supportedLanguages(): array { return []; }
+
     // ── Feature integration points ────────────────────────────────────────────
 
     public function aiToolProviders(): array { return []; }
