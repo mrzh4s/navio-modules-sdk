@@ -266,12 +266,19 @@ The full interface all modules must satisfy.
 | `composerPackage()` | `string` | No | Composer package name |
 | `hasSettings()` | `bool` | No | Whether module has a settings page |
 | `settingsRoute()` | `?string` | No | Named route to the settings page |
-| `settingsLabel()` | `string` | No | Label in settings sidebar |
+| `settingsLabel()` | `string` | No | Label in settings sidebar (English) |
 | `settingsIcon()` | `string` | No | Icon in settings sidebar |
-| `adminMenuItems()` | `array` | No | Admin sidebar menu items |
-| `appMenuItems()` | `array` | No | App sidebar menu items |
+| `nameI18nKey()` | `?string` | No | React-Intl message ID for the module name |
+| `descriptionI18nKey()` | `?string` | No | React-Intl message ID for the description |
+| `settingsLabelI18nKey()` | `?string` | No | React-Intl message ID for settings sidebar label |
+| `workspaceSettingsLabelI18nKey()` | `?string` | No | React-Intl message ID for workspace settings label |
+| `menuSectionLabelI18nKey()` | `?string` | No | React-Intl message ID for sidebar section heading |
+| `adminMenuItems()` | `array` | No | Admin sidebar menu items (supports `labelId`) |
+| `menuItems()` | `array` | No | App sidebar menu items (supports `labelId`) |
 | `permissions()` | `array` | No | Array of `PermissionDefinition` objects |
 | `schemaName()` | `?string` | No | PostgreSQL schema for this module's tables |
+| `supportedLanguages()` | `array` | No | BCP-47 codes this module is translated for |
+| `i18nMessages()` | `array` | No | Translation messages by locale |
 
 ### `AbstractModuleDefinition`
 
@@ -325,19 +332,80 @@ ModulePageResponse::render(
 
 ## Menu Item Shape
 
-Each item in `adminMenuItems()` / `appMenuItems()` follows this structure:
+Each item in `adminMenuItems()` / `menuItems()` follows this structure:
 
 ```php
 [
-    'label'      => 'My Section',       // required — display text
+    'label'      => 'My Section',       // required — display text (English fallback)
+    'labelId'    => 'crm.menu.section', // React-Intl message ID (optional, preferred)
     'icon'       => 'IconBox',          // Tabler icon name
     'route'      => 'my.route.name',    // named route, null for group headers
     'permission' => 'my_thing.view',    // permission gate (optional)
     'order'      => 50,                 // sort order
     'children'   => [                   // nested items (optional)
-        ['label' => '...', 'icon' => '...', 'route' => '...', 'permission' => '...'],
+        ['label' => '...', 'labelId' => '...', 'icon' => '...', 'route' => '...', 'permission' => '...'],
     ],
 ]
+```
+
+When `labelId` is provided, the platform resolves it via React-Intl (`intl.formatMessage({ id: labelId })`) and displays the translated label for the user's active language. `label` is kept as a fallback for menus added via the custom menu editor or when no translation is available.
+
+Sub-links in `settingsSubLinks()` support the same `labelId` field:
+
+```php
+[
+    'label'      => 'Integrations',
+    'labelId'    => 'crm.settings.integrations',
+    'route'      => 'crm.settings.integrations',
+    'icon'       => 'IconPlugs',
+    'permission' => null,
+]
+```
+
+## Module i18n Keys
+
+To support multilingual display of your module's name, settings label, and sidebar section heading, implement the i18n key methods on your module definition:
+
+```php
+// The React-Intl message ID for your module's display name.
+// Used wherever the platform renders the module name in the UI.
+public function nameI18nKey(): ?string { return 'crm.module.name'; }
+
+// Used in the platform settings sidebar label.
+public function settingsLabelI18nKey(): ?string { return 'crm.settings.label'; }
+
+// Used in the workspace settings sidebar label.
+public function workspaceSettingsLabelI18nKey(): ?string { return 'crm.workspaceSettings.label'; }
+
+// Used for the app sidebar section heading above your menu items.
+public function menuSectionLabelI18nKey(): ?string { return 'crm.menu.section'; }
+```
+
+Add the corresponding translations for all supported locales in `i18nMessages()`:
+
+```php
+public function i18nMessages(): array
+{
+    return [
+        'en-GB' => [
+            'crm.module.name'              => 'CRM',
+            'crm.settings.label'           => 'CRM',
+            'crm.workspaceSettings.label'  => 'CRM',
+            'crm.menu.section'             => 'CRM',
+            'crm.menu.contacts'            => 'Contacts',
+            'crm.menu.leads'               => 'Leads',
+        ],
+        'ms' => [
+            'crm.module.name'              => 'CRM',
+            'crm.settings.label'           => 'CRM',
+            'crm.workspaceSettings.label'  => 'CRM',
+            'crm.menu.section'             => 'CRM',
+            'crm.menu.contacts'            => 'Kenalan',
+            'crm.menu.leads'               => 'Petunjuk',
+        ],
+        // ... other locales
+    ];
+}
 ```
 
 ---

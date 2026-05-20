@@ -45,6 +45,42 @@ abstract class AbstractModuleDefinition implements ModuleDefinitionContract
     public function workspaceSettingsLabel(): string  { return $this->name(); }
     public function workspaceSettingsIcon(): string   { return 'IconSettings'; }
 
+    // ── i18n keys for UI labels ───────────────────────────────────────────────
+
+    /**
+     * React-Intl message ID for this module's display name.
+     * When non-null, the frontend resolves this key instead of using name() directly.
+     * Example: 'module.changelog.name'
+     */
+    public function nameI18nKey(): ?string { return null; }
+
+    /**
+     * React-Intl message ID for this module's description.
+     * Example: 'module.changelog.description'
+     */
+    public function descriptionI18nKey(): ?string { return null; }
+
+    /**
+     * React-Intl message ID for the platform settings sidebar label.
+     * Falls back to settingsLabel() / name() when null.
+     * Example: 'module.changelog.settingsLabel'
+     */
+    public function settingsLabelI18nKey(): ?string { return null; }
+
+    /**
+     * React-Intl message ID for the workspace settings sidebar label.
+     * Falls back to workspaceSettingsLabel() / name() when null.
+     * Example: 'module.changelog.workspaceSettingsLabel'
+     */
+    public function workspaceSettingsLabelI18nKey(): ?string { return null; }
+
+    /**
+     * React-Intl message ID for this module's app sidebar section heading.
+     * Falls back to menuSectionLabel() when null.
+     * Example: 'module.changelog.sectionLabel'
+     */
+    public function menuSectionLabelI18nKey(): ?string { return null; }
+
     // ── Menu ──────────────────────────────────────────────────────────────────
 
     /** @deprecated Use menuItems() instead. */
@@ -53,7 +89,9 @@ abstract class AbstractModuleDefinition implements ModuleDefinitionContract
 
     /**
      * Unified app sidebar menu items. Preferred over appMenuItems().
-     * Each item: ['label', 'icon', 'route', 'permission'?, 'order'?, 'children'?]
+     * Each item: ['label', 'icon', 'route', 'permission'?, 'order'?, 'children'?,
+     *             'labelId'?]
+     * labelId: React-Intl message ID resolved on the frontend instead of label.
      */
     public function menuItems(): array { return []; }
 
@@ -100,11 +138,83 @@ abstract class AbstractModuleDefinition implements ModuleDefinitionContract
      */
     public function supportedLanguages(): array { return []; }
 
+    /**
+     * Frontend i18n messages this module contributes to the catalog files.
+     *
+     * Keys use dot-notation (e.g. 'geo.createPortal'). Run `php artisan i18n:generate`
+     * after changing these to rebuild the JS catalog files in resources/js/i18n/messages/.
+     *
+     * NOTE: Menu item label keys (the `labelId` field in adminMenuItems / appMenuItems /
+     * menuItems) do NOT need to be added here — the generator automatically extracts
+     * labelId→label pairs from those methods and adds them to the en-GB catalog.
+     * Only add keys here for UI strings that aren't already covered by menu items.
+     *
+     * Format:
+     * [
+     *   'en-GB'   => ['geo.createPortal' => 'Create Portal', ...],
+     *   'ms'      => ['geo.createPortal' => 'Cipta Portal',  ...],
+     *   'zh'      => [...],
+     *   'ta'      => [...],
+     *   'ms-Arab' => [...],
+     * ]
+     *
+     * Unknown locales are silently ignored by the generator.
+     */
+    public function i18nMessages(): array { return []; }
+
     // ── Feature integration points ────────────────────────────────────────────
 
     public function aiToolProviders(): array { return []; }
     public function searchProviders(): array { return []; }
+
+    /**
+     * Declare notification types this module can dispatch, with per-channel defaults.
+     *
+     * Each entry is an associative array with the following keys:
+     *
+     *   'type'           => string   — machine key matching the value stored in app_notifications.type
+     *                                  (e.g. 'task_assigned', 'gis_approval_requested')
+     *   'label'          => string   — human-readable name shown in the preferences UI
+     *   'description'    => string   — one-line explanation shown as sublabel in the preferences UI
+     *
+     *   // Channel defaults — used to pre-seed NotificationPreference rows on first visit.
+     *   // If a preference row does not exist for a user, ALL channels are considered enabled
+     *   // (opt-out model). These defaults only affect the initial toggle state shown in the UI.
+     *
+     *   'in_app_default'  => bool    — default true  (all events appear in the in-app bell)
+     *   'email_default'   => bool    — default false (high-volume types should not email by default)
+     *   'push_default'    => bool    — default true  (desktop push for foreground-independent delivery)
+     *   'telegram_default'=> bool    — default false
+     *   'voice_default'   => bool    — default false (voice announcements for actionable events)
+     *
+     * Example:
+     *
+     *   return [
+     *     [
+     *       'type'             => 'task_assigned',
+     *       'label'            => 'Task Assigned',
+     *       'description'      => 'When a task is assigned to you.',
+     *       'in_app_default'   => true,
+     *       'email_default'    => true,
+     *       'push_default'     => true,
+     *       'telegram_default' => false,
+     *       'voice_default'    => true,
+     *     ],
+     *   ];
+     *
+     * @return array<int, array{
+     *   type: string,
+     *   label: string,
+     *   description: string,
+     *   in_app_default?: bool,
+     *   email_default?: bool,
+     *   push_default?: bool,
+     *   telegram_default?: bool,
+     *   voice_default?: bool,
+     * }>
+     */
     public function notificationTypes(): array { return []; }
+
     public function widgetProviders(): array { return []; }
     public function queueNames(): array { return []; }
     public function scheduledTasks(): array { return []; }
@@ -140,6 +250,23 @@ abstract class AbstractModuleDefinition implements ModuleDefinitionContract
      * @return GraphQLOperationDefinition[]
      */
     public function graphqlOperations(): array { return []; }
+
+    // ── MCP (Model Context Protocol) ─────────────────────────────────────────
+
+    /**
+     * MCP-specific tools this module exposes to external AI clients.
+     * Modules whose AI chat tools should also appear in MCP do NOT need to
+     * override this — the platform auto-promotes aiToolProviders() to MCP.
+     * Override only when you need MCP-only tools separate from AI chat tools.
+     * @return McpToolDefinition[]
+     */
+    public function mcpTools(): array { return []; }
+
+    /**
+     * MCP resources this module exposes (browseable data URIs).
+     * @return McpResourceDefinition[]
+     */
+    public function mcpResources(): array { return []; }
 
     // ── Self-declared infrastructure ──────────────────────────────────────────
 

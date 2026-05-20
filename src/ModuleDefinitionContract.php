@@ -30,7 +30,9 @@ interface ModuleDefinitionContract
 
     /**
      * Sub-links shown beneath this module in the Settings sidebar.
-     * Each item: ['label' => string, 'route' => string, 'icon' => string, 'permission' => string|null]
+     * Each item: ['label' => string, 'route' => string, 'icon' => string,
+     *             'permission' => string|null, 'labelId'? => string]
+     * labelId: React-Intl message ID resolved on the frontend instead of label.
      */
     public function settingsSubLinks(): array;
 
@@ -49,6 +51,23 @@ interface ModuleDefinitionContract
     /** Tabler icon name shown in the workspace settings sidebar. */
     public function workspaceSettingsIcon(): string;
 
+    // ── i18n keys for UI labels ───────────────────────────────────────────────
+
+    /** React-Intl message ID for this module's display name. Null = use name(). */
+    public function nameI18nKey(): ?string;
+
+    /** React-Intl message ID for this module's description. Null = use description(). */
+    public function descriptionI18nKey(): ?string;
+
+    /** React-Intl message ID for the platform settings sidebar label. Null = use settingsLabel(). */
+    public function settingsLabelI18nKey(): ?string;
+
+    /** React-Intl message ID for the workspace settings sidebar label. Null = use workspaceSettingsLabel(). */
+    public function workspaceSettingsLabelI18nKey(): ?string;
+
+    /** React-Intl message ID for the app sidebar section heading. Null = use menuSectionLabel(). */
+    public function menuSectionLabelI18nKey(): ?string;
+
     // ── Menu registration ─────────────────────────────────────────────────────
 
     /** @deprecated Use menuItems() instead. */
@@ -57,15 +76,20 @@ interface ModuleDefinitionContract
     /**
      * Admin panel sidebar menu items.
      * Shape per item: ['label', 'icon', 'route', 'permission'?, 'order'?, 'is_heading'?,
-     *                  'default_roles'?, 'children'?]
+     *                  'default_roles'?, 'children'?, 'labelId'?]
      *
+     * labelId: React-Intl message ID resolved on the frontend instead of label.
      * default_roles: workspace role slugs that see this item by default.
      *   []             = visible to all roles (default)
      *   ['owner','admin'] = only owners/admins see it unless workspace overrides
      */
     public function adminMenuItems(): array;
 
-    /** Unified app sidebar menu items. Preferred over appMenuItems(). */
+    /**
+     * Unified app sidebar menu items. Preferred over appMenuItems().
+     * Shape per item: ['label', 'icon', 'route', 'permission'?, 'order'?, 'children'?, 'labelId'?]
+     * labelId: React-Intl message ID resolved on the frontend instead of label.
+     */
     public function menuItems(): array;
 
     /** Section heading label for app sidebar. Null = no heading. */
@@ -191,6 +215,14 @@ interface ModuleDefinitionContract
      */
     public function graphqlOperations(): array;
 
+    // ── MCP (Model Context Protocol) ─────────────────────────────────────────
+
+    /** @return McpToolDefinition[] */
+    public function mcpTools(): array;
+
+    /** @return McpResourceDefinition[] */
+    public function mcpResources(): array;
+
     // ── Self-declared infrastructure ──────────────────────────────────────────
 
     /**
@@ -249,4 +281,20 @@ interface ModuleDefinitionContract
      * Convention: Database/Seeders/{ModuleName}Seeder.php adjacent to the module class file.
      */
     public function seeder(): ?string;
+
+    /**
+     * BCP-47 codes this module's UI is translated for.
+     * Internal modules return SupportedLanguages::primaryCodes().
+     * External modules return the subset of languages they support.
+     * Return [] to indicate no module-specific translation declarations.
+     */
+    public function supportedLanguages(): array;
+
+    /**
+     * Frontend i18n messages this module contributes to the catalog files.
+     * Run `php artisan i18n:generate` to rebuild JS catalogs from all module sources.
+     *
+     * @return array<string, array<string, string>> locale → [messageId => translation]
+     */
+    public function i18nMessages(): array;
 }
