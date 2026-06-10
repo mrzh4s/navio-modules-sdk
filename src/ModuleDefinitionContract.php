@@ -152,6 +152,49 @@ interface ModuleDefinitionContract
      */
     public function onUpgrade(string $fromVersion, string $toVersion): void;
 
+    // ── Mobile navigation ─────────────────────────────────────────────────────
+
+    /**
+     * Bottom nav items shown when the user is inside this module's context.
+     * Return [] to inherit the workspace-global (user-pinned) bottom nav.
+     *
+     * Each item shape:
+     *   ['label' => string, 'labelId' => string|null, 'icon' => string,
+     *    'route' => string|null, 'is_fab' => bool, 'fab_icon' => string|null,
+     *    'children' => array]
+     */
+    public function mobileNavItems(): array;
+
+    /**
+     * Visual variant for this module's bottom nav.
+     * 'standard' | 'cta-center' | 'material3'
+     */
+    public function mobileNavVariant(): string;
+
+    /**
+     * Number of items to place LEFT of the CTA in 'cta-center' variant.
+     * null = auto (floor(count/2)).
+     */
+    public function mobileNavCtaSplit(): ?int;
+
+    /**
+     * URL prefixes that activate this module's bottom nav.
+     * useModuleNav() on the frontend matches the current URL against these prefixes.
+     * Example: ['/projects', '/sprints']
+     * @return string[]
+     */
+    public function mobileNavUrlPrefixes(): array;
+
+    /**
+     * Mobile header action buttons shown when the user is on this module's pages.
+     * Max 2 shown inline; extras collapse into a kebab overflow sheet.
+     *
+     * Each item shape (same as toolbar menu items):
+     *   ['label' => string, 'icon' => string, 'route' => string|null,
+     *    'action' => string|null, 'permission' => string|null]
+     */
+    public function mobileHeaderActions(): array;
+
     // ── Feature integration points ────────────────────────────────────────────
 
     /**

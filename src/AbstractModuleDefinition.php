@@ -162,6 +162,45 @@ abstract class AbstractModuleDefinition implements ModuleDefinitionContract
      */
     public function i18nMessages(): array { return []; }
 
+    // ── Mobile navigation ─────────────────────────────────────────────────────
+
+    /** Bottom nav items declared by this module. Empty = use workspace-global fallback nav. */
+    public function mobileNavItems(): array { return []; }
+
+    /** Visual variant for this module's bottom nav. 'standard' | 'cta-center' | 'material3' */
+    public function mobileNavVariant(): string { return 'standard'; }
+
+    /**
+     * Number of items to place LEFT of the CTA in 'cta-center' variant.
+     * null = auto (floor(count/2)). Override to force a specific split.
+     */
+    public function mobileNavCtaSplit(): ?int { return null; }
+
+    /**
+     * URL prefixes that activate this module's bottom nav.
+     * useModuleNav() matches the current URL against these in addition to item paths.
+     * Example: ['/projects', '/sprints']
+     * @return string[]
+     */
+    public function mobileNavUrlPrefixes(): array { return []; }
+
+    /**
+     * CTA button for this module's bottom nav.
+     * Declare the shape; the FE page registers the handler via pushNavActions().
+     *
+     * Keys:
+     *   'icon'       — Tabler icon name, e.g. 'IconPlus'
+     *   'labelId'    — i18n key for the button label
+     *   'action_key' — FE action key (page registers handler); mutually exclusive with 'route'
+     *   'route'      — Laravel named route (resolved to a URL); mutually exclusive with 'action_key'
+     *
+     * @return array|null  null = no CTA for this module's nav
+     */
+    public function mobileNavCta(): ?array { return null; }
+
+    /** Mobile header actions shown on this module's pages. Max 2 visible; rest collapse to kebab. */
+    public function mobileHeaderActions(): array { return []; }
+
     // ── Feature integration points ────────────────────────────────────────────
 
     public function aiToolProviders(): array { return []; }
